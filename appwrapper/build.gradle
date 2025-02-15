@@ -4,23 +4,20 @@ plugins {
 }
 
 apply plugin : "java"
-ext {
-    javaMainClass = 'uk.co.flypig.Main'
-}
 
 application {
-    mainClass = javaMainClass
+    mainClass = 'uk.co.flypig.Main'
 }
 
 checkstyle {
     getConfigDirectory().set(rootProject.file("checkstyle"))
-    ignoreFailures false
-    showViolations true
-    toolVersion checkstyleVersion
+    ignoreFailures = false
+    showViolations = true
+    toolVersion = checkstyleVersion
 }
 
 checkstyleTest {
-    enabled false // do not checkstyle test files
+    enabled = false // do not checkstyle test files
 }
 
 dependencies {
