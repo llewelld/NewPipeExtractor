@@ -44,6 +44,18 @@ Another approach would be to use the local Maven repository, here's a gist of ho
 
 > Tip for Android Studio users: After you make changes and run the `install` task, use the menu option `File → "Sync with File System"` to refresh the library in your project.
 
+## Building and running
+
+To build using the `gradlew` bootstrapping script:
+```
+./gradlew assemble
+```
+
+To execute the test application:
+```
+./gradlew run --args="https://www.youtube.com/watch?v=xvFZjo5PgG0"
+```
+
 ## Supported sites
 
 The following sites are currently supported:

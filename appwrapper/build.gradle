@@ -1,0 +1,31 @@
+plugins {
+    id 'checkstyle'
+    id 'application'
+}
+
+apply plugin : "java"
+ext {
+    javaMainClass = 'uk.co.flypig.Main'
+}
+
+application {
+    mainClass = javaMainClass
+}
+
+checkstyle {
+    getConfigDirectory().set(rootProject.file("checkstyle"))
+    ignoreFailures false
+    showViolations true
+    toolVersion checkstyleVersion
+}
+
+checkstyleTest {
+    enabled false // do not checkstyle test files
+}
+
+dependencies {
+    implementation project(':timeago-parser')
+    api project(':extractor')
+
+    implementation "com.squareup.okhttp3:okhttp:3.12.13"
+}

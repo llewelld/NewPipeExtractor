@@ -37,6 +37,7 @@ allprojects {
 dependencies {
     api project(':extractor')
     implementation project(':timeago-parser')
+    implementation project(':appwrapper')
 }
 
 subprojects {
