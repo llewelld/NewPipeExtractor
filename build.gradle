@@ -14,6 +14,7 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url "https://jitpack.io" }
+        gradlePluginPortal()
     }
 
     afterEvaluate {
@@ -31,6 +32,7 @@ allprojects {
         jsr305Version = "3.0.2"
         junitVersion = "5.11.4"
         checkstyleVersion = "10.4"
+        graalVMVersion = "24.1.2"
     }
 }
 

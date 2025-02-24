@@ -1,6 +1,7 @@
 plugins {
     id 'checkstyle'
     id 'application'
+    id 'org.graalvm.buildtools.native' version '0.10.5'
 }
 
 apply plugin : "java"
@@ -26,3 +27,14 @@ dependencies {
 
     implementation "com.squareup.okhttp3:okhttp:3.12.13"
 }
+
+graalvmNative {
+    binaries.all {
+        // Avoid java.lang.ExceptionInInitializerError runtime error
+        // See https://github.com/oracle/graal/issues/1294
+        buildArgs.add('-H:+AddAllCharsets')
+        // Enable network protocols
+        buildArgs.add('--enable-url-protocols=http,https')
+    }
+}
+

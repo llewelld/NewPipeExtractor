@@ -1,8 +1,8 @@
 package org.schabi.newpipe.extractor.utils;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.ScriptableObject;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Value;
 
 public final class JavaScript {
 
@@ -10,31 +10,28 @@ public final class JavaScript {
     }
 
     public static void compileOrThrow(final String function) {
+        Value value;
+        final Context context = Context.create();
         try {
-            final Context context = Context.enter();
-            context.setOptimizationLevel(-1);
-
-            // If it doesn't compile it throws an exception here
-            context.compileString(function, null, 1, null);
+              final Source source = Source.create("js", function);
+              value = context.parse(source);
         } finally {
-            Context.exit();
+            context.close(true);
         }
     }
 
     public static String run(final String function,
                              final String functionName,
                              final String... parameters) {
+        final Context context = Context.create();
         try {
-            final Context context = Context.enter();
-            context.setOptimizationLevel(-1);
-            final ScriptableObject scope = context.initSafeStandardObjects();
+            final Source source = Source.create("js", function);
+            final Value value = context.eval("js", function);
 
-            context.evaluateString(scope, function, functionName, 1, null);
-            final Function jsFunction = (Function) scope.get(functionName, scope);
-            final Object result = jsFunction.call(context, scope, scope, parameters);
+            Value result = value.execute((Object) parameters);
             return result.toString();
         } finally {
-            Context.exit();
+            context.close(true);
         }
     }
 

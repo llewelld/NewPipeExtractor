@@ -1,5 +1,6 @@
 plugins {
     id 'checkstyle'
+    id 'org.graalvm.buildtools.native' version '0.10.5'
 }
 
 test {
@@ -30,6 +31,8 @@ dependencies {
     implementation "com.google.code.findbugs:jsr305:$jsr305Version"
 
     implementation 'org.mozilla:rhino:1.7.15'
+    implementation("org.graalvm.polyglot:polyglot:$graalVMVersion")
+    implementation("org.graalvm.polyglot:js:$graalVMVersion")
 
     checkstyle "com.puppycrawl.tools:checkstyle:$checkstyleVersion"
 
