@@ -30,7 +30,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.17.2'
     implementation "com.google.code.findbugs:jsr305:$jsr305Version"
 
-    implementation 'org.mozilla:rhino:1.7.15'
     implementation("org.graalvm.polyglot:polyglot:$graalVMVersion")
     implementation("org.graalvm.polyglot:js:$graalVMVersion")
 

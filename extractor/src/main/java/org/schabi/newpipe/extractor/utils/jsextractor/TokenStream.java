@@ -1,9 +1,9 @@
 package org.schabi.newpipe.extractor.utils.jsextractor;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Kit;
-import org.mozilla.javascript.ObjToIntMap;
-import org.mozilla.javascript.ScriptRuntime;
+import org.schabi.newpipe.extractor.utils.jsextractor.Context;
+import org.schabi.newpipe.extractor.utils.jsextractor.Kit;
+import org.schabi.newpipe.extractor.utils.jsextractor.ObjToIntMap;
+import org.schabi.newpipe.extractor.utils.jsextractor.ScriptRuntime;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 
 /* Source: Mozilla Rhino, org.mozilla.javascript.Token

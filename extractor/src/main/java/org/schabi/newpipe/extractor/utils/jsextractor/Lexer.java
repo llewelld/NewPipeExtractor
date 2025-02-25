@@ -1,6 +1,6 @@
 package org.schabi.newpipe.extractor.utils.jsextractor;
 
-import org.mozilla.javascript.Context;
+import org.schabi.newpipe.extractor.utils.jsextractor.Context;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 
 import java.util.Stack;
