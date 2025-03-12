@@ -43,3 +43,16 @@ dependencies {
     testImplementation "com.squareup.okhttp3:okhttp:4.12.0"
     testImplementation 'com.google.code.gson:gson:2.12.1'
 }
+
+graalvmNative {
+    binaries.all {
+        // Avoid java.lang.ExceptionInInitializerError runtime error
+        // See https://github.com/oracle/graal/issues/1294
+        buildArgs.add('-H:+AddAllCharsets')
+        // Enable network protocols
+        buildArgs.add('--enable-url-protocols=http,https')
+        buildArgs.add('--parallelism=2')
+        buildArgs.add('-H:DeadlockWatchdogInterval=0')
+        buildArgs.add('-H:+UnlockExperimentalVMOptions')
+    }
+}
