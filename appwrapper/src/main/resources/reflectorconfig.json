@@ -1,0 +1,12 @@
+[
+  {
+    "name": "uk.co.flypig.HelloWorldIn",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.HelloWorldOut",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  }
+]
