@@ -23,9 +23,11 @@ import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.ServiceList;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
+import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.VideoStream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.OkHttpClient;
 import java.io.IOException;
@@ -55,49 +57,14 @@ final class Main {
     static ObjectMapper jsonMapper = new JsonMapper();
     static Map<String, MethodInfo> methodInfo;
     static CCharPointer emptyString;
+    static DownloaderImpl downloader = null;
 
     private Main() {
         throw new UnsupportedOperationException();
     }
 
     public static void main(final String[] args) {
-        System.out.println("Initialising");
-        final String url = args.length > 0
-            ? args[0]
-            : "https://www.youtube.com/watch?v=xvFZjo5PgG0";
-        final OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        final DownloaderImpl downloader = DownloaderImpl.init(builder);
-        NewPipe.init(downloader);
-
-        try {
-            System.out.println("Downloading video");
-            System.out.println("URL: " + url);
-            final StreamingService service = ServiceList.YouTube;
-            final StreamExtractor extractor = service.getStreamExtractor(url);
-            extractor.fetchPage();
-
-            System.out.println("Video name: " + extractor.getName());
-            System.out.println("Uploader: " + extractor.getUploaderName());
-            System.out.println("Category: " + extractor.getCategory());
-            System.out.println("Likes: " + extractor.getLikeCount());
-            System.out.println("Views: " + extractor.getViewCount());
-
-            final java.util.List<VideoStream> streams = extractor.getVideoStreams();
-            for (final VideoStream stream : streams) {
-                System.out.println("Content: " + stream.getContent());
-            }
-
-        } catch (final Exception e) {
-            System.out.println("Exception: " + e);
-        }
-
-        try {
-            downloader.teardown();
-        } catch (final IOException e) {
-            System.out.println("IOException: " + e);
-        }
-
-        System.out.println("Completed");
+        throw new UnsupportedOperationException();
     }
 
     private static <In, Out> CCharPointer call(Function<In, Out> method, CCharPointer in, Class<In> className) {
@@ -115,26 +82,74 @@ final class Main {
         return holder.get();
     }
 
-    private static HelloWorldOut helloWorld(HelloWorldIn input) {
-        final String hello = "Hello " + input.name;
-        final HelloWorldOut result = new HelloWorldOut();
-        result.result = hello;
-        return result;
+    private static DownloadExtracted downloadExtract(DownloadLocater download) {
+        DownloadExtracted extracted = new DownloadExtracted();
+        HashMap<String, StreamingService> services = new HashMap<String, StreamingService>();
+        services.put("Bandcamp", ServiceList.Bandcamp);
+        services.put("MediaCCC", ServiceList.MediaCCC);
+        services.put("PeerTube", ServiceList.PeerTube);
+        services.put("SoundCloud", ServiceList.SoundCloud);
+        services.put("YouTube", ServiceList.YouTube);
+
+        StreamingService service = ServiceList.YouTube;
+        if (services.containsKey(download.service)) {
+            service = services.get(download.service);
+        }
+
+        if (downloader == null) {
+            final OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            downloader = DownloaderImpl.init(builder);
+            NewPipe.init(downloader);
+        }
+
+        try {
+            System.out.println("Downloading video");
+            System.out.println("URL: " + download.url);
+            final StreamExtractor extractor = service.getStreamExtractor(download.url);
+            extractor.fetchPage();
+
+            extracted.name = extractor.getName();
+            extracted.uploaderName = extractor.getUploaderName();
+            extracted.category = extractor.getCategory();
+            extracted.likeCount = extractor.getLikeCount();
+            extracted.viewCount = extractor.getViewCount();
+
+            final java.util.List<VideoStream> videoStreams = extractor.getVideoStreams();
+            for (final VideoStream stream : videoStreams) {
+                extracted.content = stream.getContent();
+            }
+            if (extracted.content == null) {
+                final java.util.List<AudioStream> audioStreams = extractor.getAudioStreams();
+                for (final AudioStream stream : audioStreams) {
+                    extracted.content = stream.getContent();
+                }
+            }
+        } catch (final Exception e) {
+            System.out.println("Exception: " + e);
+        }
+
+        return extracted;
     }
 
-    private static HelloWorldIn worldHello(HelloWorldOut input) {
-        final String hello = input.result + " Hello";
-        HelloWorldIn result = new HelloWorldIn();
-        result.name = hello;
-        return result;
+    private static ParamNone tearDown(ParamNone empty) {
+        if (downloader != null) {
+            try {
+                downloader.teardown();
+            } catch (final IOException e) {
+                System.out.println("IOException: " + e);
+            }
+            downloader = null;
+        }
+        return empty;
     }
 
     @CEntryPoint(name = "init")
     static void init(IsolateThread thread) {
         emptyString = CTypeConversion.toCString("").get();
+        jsonMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         methodInfo = new HashMap<>();
-        methodInfo.put("helloWorld", new MethodInfo<HelloWorldIn, HelloWorldOut>(Main::helloWorld, HelloWorldIn.class));
-        methodInfo.put("worldHello", new MethodInfo<HelloWorldOut, HelloWorldIn>(Main::worldHello, HelloWorldOut.class));
+        methodInfo.put("downloadExtract", new MethodInfo<DownloadLocater, DownloadExtracted>(Main::downloadExtract, DownloadLocater.class));
+        methodInfo.put("tearDown", new MethodInfo<ParamNone, ParamNone>(Main::tearDown, ParamNone.class));
     }
 
     @CEntryPoint(name = "invoke")

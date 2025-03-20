@@ -24,7 +24,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public final class HelloWorldIn {
-    public String name;
+public final class DownloadLocater {
+    public String service;
+    public String url;
 }
 

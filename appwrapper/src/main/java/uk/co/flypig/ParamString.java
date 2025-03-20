@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public final class HelloWorldOut {
-    public String result;
+public final class ParamString {
+    public String string;
 }
 

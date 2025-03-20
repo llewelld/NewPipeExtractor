@@ -1,11 +1,21 @@
 [
   {
-    "name": "uk.co.flypig.HelloWorldIn",
+    "name": "uk.co.flypig.DownloadLocater",
     "allPublicFields" : true,
     "allPublicConstructors" : true
   },
   {
-    "name": "uk.co.flypig.HelloWorldOut",
+    "name": "uk.co.flypig.DownloadExtracted",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.ParamNone",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.ParamString",
     "allPublicFields" : true,
     "allPublicConstructors" : true
   }
