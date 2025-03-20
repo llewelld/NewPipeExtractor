@@ -25,14 +25,18 @@ import org.schabi.newpipe.extractor.ServiceList;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.VideoStream;
+import org.schabi.newpipe.extractor.suggestion.SuggestionExtractor;
+import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.OkHttpClient;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Function;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.graalvm.nativeimage.IsolateThread;
@@ -58,6 +62,7 @@ final class Main {
     static Map<String, MethodInfo> methodInfo;
     static CCharPointer emptyString;
     static DownloaderImpl downloader = null;
+    static HashMap<String, StreamingService> services;
 
     private Main() {
         throw new UnsupportedOperationException();
@@ -82,25 +87,17 @@ final class Main {
         return holder.get();
     }
 
+    private static StreamingService convertStringToService(final String service) {
+        StreamingService serviceId = ServiceList.YouTube;
+        if (services.containsKey(service)) {
+            serviceId = services.get(service);
+        }
+        return serviceId;
+    }
+
     private static DownloadExtracted downloadExtract(DownloadLocater download) {
         DownloadExtracted extracted = new DownloadExtracted();
-        HashMap<String, StreamingService> services = new HashMap<String, StreamingService>();
-        services.put("Bandcamp", ServiceList.Bandcamp);
-        services.put("MediaCCC", ServiceList.MediaCCC);
-        services.put("PeerTube", ServiceList.PeerTube);
-        services.put("SoundCloud", ServiceList.SoundCloud);
-        services.put("YouTube", ServiceList.YouTube);
-
-        StreamingService service = ServiceList.YouTube;
-        if (services.containsKey(download.service)) {
-            service = services.get(download.service);
-        }
-
-        if (downloader == null) {
-            final OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            downloader = DownloaderImpl.init(builder);
-            NewPipe.init(downloader);
-        }
+        StreamingService service = convertStringToService(download.service);
 
         try {
             System.out.println("Downloading video");
@@ -124,7 +121,8 @@ final class Main {
                     extracted.content = stream.getContent();
                 }
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             System.out.println("Exception: " + e);
         }
 
@@ -135,12 +133,34 @@ final class Main {
         if (downloader != null) {
             try {
                 downloader.teardown();
-            } catch (final IOException e) {
-                System.out.println("IOException: " + e);
+            }
+            catch (final IOException e) {
+                System.out.println("IOException in tearDown: " + e);
             }
             downloader = null;
         }
         return empty;
+    }
+
+    private static SuggestionsResponse getSuggestions(SuggestionsQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
+
+        List<String> suggestions = Collections.emptyList();
+        try {
+            final SuggestionExtractor extractor = serviceId.getSuggestionExtractor();
+            if (extractor != null) {
+                suggestions = extractor.suggestionList(query.query);
+            }
+        }
+        catch (final IOException e) {
+            System.out.println("IOException in getSuggestions: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in getSuggestions: " + e);
+        }
+        final SuggestionsResponse response = new SuggestionsResponse(suggestions);
+
+        return response;
     }
 
     @CEntryPoint(name = "init")
@@ -150,6 +170,18 @@ final class Main {
         methodInfo = new HashMap<>();
         methodInfo.put("downloadExtract", new MethodInfo<DownloadLocater, DownloadExtracted>(Main::downloadExtract, DownloadLocater.class));
         methodInfo.put("tearDown", new MethodInfo<ParamNone, ParamNone>(Main::tearDown, ParamNone.class));
+        methodInfo.put("getSuggestions", new MethodInfo<SuggestionsQuery, SuggestionsResponse>(Main::getSuggestions, SuggestionsQuery.class));
+
+        services = new HashMap<String, StreamingService>();
+        services.put("Bandcamp", ServiceList.Bandcamp);
+        services.put("MediaCCC", ServiceList.MediaCCC);
+        services.put("PeerTube", ServiceList.PeerTube);
+        services.put("SoundCloud", ServiceList.SoundCloud);
+        services.put("YouTube", ServiceList.YouTube);
+
+        final OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        downloader = DownloaderImpl.init(builder);
+        NewPipe.init(downloader);
     }
 
     @CEntryPoint(name = "invoke")

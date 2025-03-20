@@ -18,5 +18,15 @@
     "name": "uk.co.flypig.ParamString",
     "allPublicFields" : true,
     "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.SuggestionsQuery",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.SuggestionsResponse",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
   }
 ]
