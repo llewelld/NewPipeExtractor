@@ -22,6 +22,9 @@ package uk.co.flypig;
 import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.ServiceList;
+import org.schabi.newpipe.extractor.ListExtractor;
+import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage;
+import org.schabi.newpipe.extractor.search.SearchInfo;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.VideoStream;
@@ -95,6 +98,61 @@ final class Main {
         return serviceId;
     }
 
+    @CEntryPoint(name = "init")
+    static void init(IsolateThread thread) {
+        // Set up static data
+        emptyString = CTypeConversion.toCString("").get();
+        jsonMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
+        // Create the HTTP client
+        final OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        downloader = DownloaderImpl.init(builder);
+        NewPipe.init(downloader);
+
+        // The available services
+        services = new HashMap<String, StreamingService>();
+        services.put("Bandcamp", ServiceList.Bandcamp);
+        services.put("MediaCCC", ServiceList.MediaCCC);
+        services.put("PeerTube", ServiceList.PeerTube);
+        services.put("SoundCloud", ServiceList.SoundCloud);
+        services.put("YouTube", ServiceList.YouTube);
+
+        // The exposed functions
+        methodInfo = new HashMap<>();
+        methodInfo.put("downloadExtract", new MethodInfo<DownloadLocater,
+            DownloadExtracted>(Main::downloadExtract, DownloadLocater.class)
+        );
+        methodInfo.put("tearDown", new MethodInfo<ParamNone,
+            ParamNone>(Main::tearDown, ParamNone.class)
+        );
+        methodInfo.put("getSuggestions", new MethodInfo<SuggestionsQuery,
+            SuggestionsResponse>(Main::getSuggestions, SuggestionsQuery.class)
+        );
+        methodInfo.put("searchFor", new MethodInfo<SearchQuery,
+            SearchInfoResponse>(Main::searchFor, SearchQuery.class)
+        );
+        methodInfo.put("getMoreSearchItems", new MethodInfo<SearchQuery,
+            InfoItemsPageResponse>(Main::getMoreSearchItems, SearchQuery.class)
+        );
+    }
+
+    @CEntryPoint(name = "invoke")
+    public static CCharPointer invoke(IsolateThread thread, CCharPointer methodNamePtr, CCharPointer in) {
+        final String methodName = CTypeConversion.toJavaString(methodNamePtr);
+        CCharPointer result = emptyString;
+        if (methodInfo.containsKey(methodName)) {
+            final MethodInfo info = methodInfo.get(methodName);
+            result = call(info.method, in, info.className);
+        } else {
+            System.out.println("Invocation failed, unknown method: " + methodName);
+        }
+        return result;
+    }
+
+    /*
+    * The exposed NewPipe Extractor API starts here
+    */
+
     private static DownloadExtracted downloadExtract(DownloadLocater download) {
         DownloadExtracted extracted = new DownloadExtracted();
         StreamingService service = convertStringToService(download.service);
@@ -163,38 +221,73 @@ final class Main {
         return response;
     }
 
-    @CEntryPoint(name = "init")
-    static void init(IsolateThread thread) {
-        emptyString = CTypeConversion.toCString("").get();
-        jsonMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        methodInfo = new HashMap<>();
-        methodInfo.put("downloadExtract", new MethodInfo<DownloadLocater, DownloadExtracted>(Main::downloadExtract, DownloadLocater.class));
-        methodInfo.put("tearDown", new MethodInfo<ParamNone, ParamNone>(Main::tearDown, ParamNone.class));
-        methodInfo.put("getSuggestions", new MethodInfo<SuggestionsQuery, SuggestionsResponse>(Main::getSuggestions, SuggestionsQuery.class));
+    private static SearchInfoResponse searchFor(SearchQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
 
-        services = new HashMap<String, StreamingService>();
-        services.put("Bandcamp", ServiceList.Bandcamp);
-        services.put("MediaCCC", ServiceList.MediaCCC);
-        services.put("PeerTube", ServiceList.PeerTube);
-        services.put("SoundCloud", ServiceList.SoundCloud);
-        services.put("YouTube", ServiceList.YouTube);
+        SearchInfoResponse response = new SearchInfoResponse();
+        try {
+            SearchInfo result = SearchInfo.getInfo(
+                serviceId,
+                serviceId.getSearchQHFactory().fromQuery(
+                    query.searchString,
+                    query.contentFilter,
+                    query.sortFilter
+                )
+            );
+            final List<Throwable> exceptions = result.getErrors();
+            if (!exceptions.isEmpty()) {
+                System.out.println("Search exceptions: " + exceptions.size());
+                System.out.println("Search exception: " + exceptions.get(0));
+                System.out.println("Search exception stack trace:");
+                exceptions.get(0).printStackTrace();
+            }
+            response = new SearchInfoResponse(
+                result.getSearchString(),
+                result.getSearchSuggestion(),
+                result.isCorrectedSearch(),
+                result.getNextPage(),
+                result.getContentFilters(),
+                result.getSortFilter(),
+                result.getRelatedItems()
+            );
+        }
+        catch (final IOException e) {
+            System.out.println("IOException in searchFor: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in searchFor: " + e);
+        }
 
-        final OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        downloader = DownloaderImpl.init(builder);
-        NewPipe.init(downloader);
+        return response;
     }
 
-    @CEntryPoint(name = "invoke")
-    public static CCharPointer invoke(IsolateThread thread, CCharPointer methodNamePtr, CCharPointer in) {
-        final String methodName = CTypeConversion.toJavaString(methodNamePtr);
-        CCharPointer result = emptyString;
-        if (methodInfo.containsKey(methodName)) {
-            final MethodInfo info = methodInfo.get(methodName);
-            result = call(info.method, in, info.className);
-        } else {
-            System.out.println("Invocation failed, unknown method: " + methodName);
+    private static InfoItemsPageResponse getMoreSearchItems(SearchQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
+
+        InfoItemsPageResponse response = new InfoItemsPageResponse();
+        try {
+            InfoItemsPage result = SearchInfo.getMoreItems(
+                serviceId,
+                serviceId.getSearchQHFactory().fromQuery(
+                    query.searchString,
+                    query.contentFilter,
+                    query.sortFilter
+                ),
+                query.page
+            );
+            response = new InfoItemsPageResponse(
+                result.getNextPage(),
+                result.getItems()
+            );
         }
-        return result;
+        catch (final IOException e) {
+            System.out.println("IOException in getMoreSearchItems: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in getMoreSearchItems: " + e);
+        }
+
+        return response;
     }
 }
 

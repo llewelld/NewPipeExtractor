@@ -28,5 +28,38 @@
     "name": "uk.co.flypig.SuggestionsResponse",
     "allPublicFields" : true,
     "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.SearchQuery",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.SearchInfoResponse",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.InfoItemsPageResponse",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "org.schabi.newpipe.extractor.Page",
+    "allDeclaredFields" : true,
+    "allDeclaredMethods": true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "org.schabi.newpipe.extractor.InfoItem",
+    "allDeclaredFields" : true,
+    "allDeclaredMethods": true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "org.schabi.newpipe.extractor.timeago.patterns.en_GB",
+    "allDeclaredFields" : true,
+    "allDeclaredMethods": true,
+    "allPublicConstructors" : true
   }
 ]
