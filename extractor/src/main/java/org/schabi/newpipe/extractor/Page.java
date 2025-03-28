@@ -17,6 +17,10 @@ public class Page implements Serializable {
     @Nullable
     private final byte[] body;
 
+    public Page() {
+        this(null, null, null, null, null);
+    };
+
     public Page(final String url,
                 final String id,
                 final List<String> ids,

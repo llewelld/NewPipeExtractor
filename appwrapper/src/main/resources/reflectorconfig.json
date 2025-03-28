@@ -57,6 +57,12 @@
     "allPublicConstructors" : true
   },
   {
+    "name": "org.schabi.newpipe.extractor.Image",
+    "allDeclaredFields" : true,
+    "allDeclaredMethods": true,
+    "allPublicConstructors" : true
+  },
+  {
     "name": "org.schabi.newpipe.extractor.timeago.patterns.en_GB",
     "allDeclaredFields" : true,
     "allDeclaredMethods": true,
