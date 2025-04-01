@@ -20,6 +20,11 @@
     "allPublicConstructors" : true
   },
   {
+    "name": "uk.co.flypig.ParamStringList",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
     "name": "uk.co.flypig.SuggestionsQuery",
     "allPublicFields" : true,
     "allPublicConstructors" : true

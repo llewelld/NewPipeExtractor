@@ -35,11 +35,13 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.OkHttpClient;
+import okhttp3.ConnectionSpec;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Arrays;
 import java.util.function.Function;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.graalvm.nativeimage.IsolateThread;
@@ -106,6 +108,9 @@ final class Main {
 
         // Create the HTTP client
         final OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        final OkHttpClient client = builder
+            .connectionSpecs(Arrays.asList(ConnectionSpec.RESTRICTED_TLS))
+            .build();
         downloader = DownloaderImpl.init(builder);
         NewPipe.init(downloader);
 
@@ -133,6 +138,9 @@ final class Main {
         );
         methodInfo.put("getMoreSearchItems", new MethodInfo<SearchQuery,
             InfoItemsPageResponse>(Main::getMoreSearchItems, SearchQuery.class)
+        );
+        methodInfo.put("getAvailableContentFilter", new MethodInfo<ParamString,
+            ParamStringList>(Main::getAvailableContentFilter, ParamString.class)
         );
     }
 
@@ -288,6 +296,13 @@ final class Main {
         }
 
         return response;
+    }
+
+    private static ParamStringList getAvailableContentFilter(ParamString service) {
+        StreamingService serviceId = convertStringToService(service.string);
+        ParamStringList result = new ParamStringList();
+        result.stringList = serviceId.getSearchQHFactory().getAvailableContentFilter();
+        return result;
     }
 }
 
