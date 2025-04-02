@@ -256,7 +256,8 @@ final class Main {
                 result.getNextPage(),
                 result.getContentFilters(),
                 result.getSortFilter(),
-                result.getRelatedItems()
+                result.getRelatedItems(),
+                result.getMetaInfo()
             );
         }
         catch (final IOException e) {

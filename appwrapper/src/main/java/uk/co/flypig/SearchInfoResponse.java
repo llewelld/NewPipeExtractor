@@ -21,6 +21,7 @@ package uk.co.flypig;
 
 import org.schabi.newpipe.extractor.Page;
 import org.schabi.newpipe.extractor.InfoItem;
+import org.schabi.newpipe.extractor.MetaInfo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,5 +39,6 @@ public final class SearchInfoResponse {
     public List<String> contentFilters;
     public String sortFilter;
     public List<InfoItem> relatedItems;
+    public List<MetaInfo> metaInfo;
 }
 

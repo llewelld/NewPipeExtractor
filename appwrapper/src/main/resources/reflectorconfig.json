@@ -72,5 +72,11 @@
     "allDeclaredFields" : true,
     "allDeclaredMethods": true,
     "allPublicConstructors" : true
+  },
+  {
+    "name": "org.schabi.newpipe.extractor.MetaInfo",
+    "allDeclaredFields" : true,
+    "allDeclaredMethods": true,
+    "allPublicConstructors" : true
   }
 ]
