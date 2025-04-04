@@ -166,8 +166,6 @@ final class Main {
         StreamingService service = convertStringToService(download.service);
 
         try {
-            System.out.println("Downloading video");
-            System.out.println("URL: " + download.url);
             final StreamExtractor extractor = service.getStreamExtractor(download.url);
             extractor.fetchPage();
 
