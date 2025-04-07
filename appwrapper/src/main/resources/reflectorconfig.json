@@ -78,5 +78,32 @@
     "allDeclaredFields" : true,
     "allDeclaredMethods": true,
     "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.CommentsInfoResponse",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.CommentsInfoQuery",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "uk.co.flypig.InfoItemsPageCommentsResponse",
+    "allPublicFields" : true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "org.schabi.newpipe.extractor.comments.CommentsInfoItem",
+    "allDeclaredFields" : true,
+    "allDeclaredMethods": true,
+    "allPublicConstructors" : true
+  },
+  {
+    "name": "org.schabi.newpipe.extractor.stream.Description",
+    "allDeclaredFields" : true,
+    "allDeclaredMethods": true,
+    "allPublicConstructors" : true
   }
 ]

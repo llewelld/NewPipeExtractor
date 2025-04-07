@@ -25,6 +25,8 @@ import org.schabi.newpipe.extractor.ServiceList;
 import org.schabi.newpipe.extractor.ListExtractor;
 import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage;
 import org.schabi.newpipe.extractor.search.SearchInfo;
+import org.schabi.newpipe.extractor.comments.CommentsInfo;
+import org.schabi.newpipe.extractor.comments.CommentsInfoItem;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.VideoStream;
@@ -141,6 +143,12 @@ final class Main {
         );
         methodInfo.put("getAvailableContentFilter", new MethodInfo<ParamString,
             ParamStringList>(Main::getAvailableContentFilter, ParamString.class)
+        );
+        methodInfo.put("getCommentsInfo", new MethodInfo<CommentsInfoQuery,
+            CommentsInfoResponse>(Main::getCommentsInfo, CommentsInfoQuery.class)
+        );
+        methodInfo.put("getMoreCommentItems", new MethodInfo<CommentsInfoQuery,
+            InfoItemsPageCommentsResponse>(Main::getMoreCommentItems, CommentsInfoQuery.class)
         );
     }
 
@@ -302,6 +310,61 @@ final class Main {
         ParamStringList result = new ParamStringList();
         result.stringList = serviceId.getSearchQHFactory().getAvailableContentFilter();
         return result;
+    }
+
+    private static CommentsInfoResponse getCommentsInfo(CommentsInfoQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
+
+        CommentsInfoResponse response = new CommentsInfoResponse();
+        try {
+            CommentsInfo result = CommentsInfo.getInfo(serviceId, query.url);
+            final List<Throwable> exceptions = result.getErrors();
+            if (!exceptions.isEmpty()) {
+                System.out.println("Comments exceptions: " + exceptions.size());
+                System.out.println("Comments exception: " + exceptions.get(0));
+                System.out.println("Comments exception stack trace:");
+                exceptions.get(0).printStackTrace();
+            }
+            response = new CommentsInfoResponse(
+                result.getNextPage(),
+                result.getContentFilters(),
+                result.getSortFilter(),
+                result.getRelatedItems()
+            );
+        }
+        catch (final IOException e) {
+            System.out.println("IOException in getCommentsInfo: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in getCommentsInfo: " + e);
+        }
+
+        return response;
+    }
+
+    private static InfoItemsPageCommentsResponse getMoreCommentItems(CommentsInfoQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
+
+        InfoItemsPageCommentsResponse response = new InfoItemsPageCommentsResponse();
+        try {
+            InfoItemsPage<CommentsInfoItem> result = CommentsInfo.getMoreItems(
+                serviceId,
+                query.url,
+                query.page
+            );
+            response = new InfoItemsPageCommentsResponse(
+                result.getNextPage(),
+                result.getItems()
+            );
+        }
+        catch (final IOException e) {
+            System.out.println("IOException in getMoreCommentItems: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in getMoreCommentItems: " + e);
+        }
+
+        return response;
     }
 }
 
