@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import okhttp3.OkHttpClient;
 import okhttp3.ConnectionSpec;
 import java.io.IOException;
@@ -65,7 +66,7 @@ final class MethodInfo<In, Out> {
 }
 
 final class Main {
-    static ObjectMapper jsonMapper = new JsonMapper();
+    static ObjectMapper jsonMapper;
     static Map<String, MethodInfo> methodInfo;
     static CCharPointer emptyString;
     static DownloaderImpl downloader = null;
@@ -106,7 +107,11 @@ final class Main {
     static void init(IsolateThread thread) {
         // Set up static data
         emptyString = CTypeConversion.toCString("").get();
-        jsonMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
+        jsonMapper = JsonMapper.builder()
+            .addModule(new AfterburnerModule())
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .build();
 
         // Create the HTTP client
         final OkHttpClient.Builder builder = new OkHttpClient.Builder();
