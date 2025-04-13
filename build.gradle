@@ -1,3 +1,9 @@
+plugins {
+    id 'org.graalvm.buildtools.native' version '0.10.5' apply false
+    id 'io.micronaut.minimal.application' version '4.5.1' apply false
+    id 'io.micronaut.graalvm' version '4.5.1' apply false
+}
+
 allprojects {
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
@@ -5,8 +11,8 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
     compileTestJava.options.encoding = 'UTF-8'
 
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 
     version 'v0.24.5'
     group 'com.github.TeamNewPipe'

@@ -26,7 +26,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.util.List;
+import io.micronaut.core.annotation.ReflectiveAccess;
 
+@ReflectiveAccess
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

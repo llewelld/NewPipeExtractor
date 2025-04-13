@@ -54,6 +54,33 @@ import org.graalvm.nativeimage.c.type.CIntPointer;
 import org.graalvm.nativeimage.c.type.CCharPointer;
 import org.graalvm.nativeimage.c.type.CCharPointerPointer;
 
+// Reflection
+import io.micronaut.core.annotation.TypeHint;
+import org.schabi.newpipe.extractor.Page;
+import org.schabi.newpipe.extractor.InfoItem;
+import org.schabi.newpipe.extractor.Image;
+import org.schabi.newpipe.extractor.timeago.patterns.en_GB;
+import org.schabi.newpipe.extractor.MetaInfo;
+import org.schabi.newpipe.extractor.comments.CommentsInfoItem;
+import org.schabi.newpipe.extractor.stream.Description;
+
+@TypeHint(
+    value = {
+        Page.class,
+        InfoItem.class,
+        Image.class,
+        en_GB.class,
+        MetaInfo.class,
+        CommentsInfoItem.class,
+        Description.class,
+    },
+    accessType = {
+        TypeHint.AccessType.ALL_PUBLIC_CONSTRUCTORS,
+        TypeHint.AccessType.ALL_DECLARED_FIELDS,
+        TypeHint.AccessType.ALL_DECLARED_METHODS
+    }
+)
+
 final class MethodInfo<In, Out> {
     public MethodInfo(Function<In, Out> method, Class<In> className) {
         this.method = method;

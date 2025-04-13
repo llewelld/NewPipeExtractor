@@ -24,7 +24,9 @@ import org.schabi.newpipe.extractor.Page;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import io.micronaut.core.annotation.ReflectiveAccess;
 
+@ReflectiveAccess
 @Data
 @NoArgsConstructor
 public final class SearchQuery {

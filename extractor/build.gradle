@@ -1,6 +1,8 @@
 plugins {
     id 'checkstyle'
-    id 'org.graalvm.buildtools.native' version '0.10.5'
+    id 'org.graalvm.buildtools.native'
+    id 'io.micronaut.minimal.application'
+    id 'io.micronaut.graalvm'
 }
 
 test {

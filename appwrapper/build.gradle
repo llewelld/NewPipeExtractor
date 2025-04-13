@@ -1,7 +1,9 @@
 plugins {
     id 'checkstyle'
     id 'application'
-    id 'org.graalvm.buildtools.native' version '0.10.5'
+    id 'org.graalvm.buildtools.native'
+    id 'io.micronaut.minimal.application'
+    id 'io.micronaut.graalvm'
 }
 
 apply plugin : "java"
@@ -28,8 +30,12 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.12.13'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3'
 
-	compileOnly 'org.projectlombok:lombok:1.18.36'
-	annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    annotationProcessor 'io.micronaut.serde:micronaut-serde-processor:2.9.0'
+    implementation "io.micronaut.serde:micronaut-serde-jackson:2.9.0"
+    annotationProcessor 'io.micronaut:micronaut-graal:3.0.0'
 }
 
 graalvmNative {
@@ -42,7 +48,6 @@ graalvmNative {
         buildArgs.add('--parallelism=2')
         buildArgs.add('-H:DeadlockWatchdogInterval=0')
         buildArgs.add('-H:+UnlockExperimentalVMOptions')
-        buildArgs.add("-H:ReflectionConfigurationFiles=${projectDir}/src/main/resources/reflectorconfig.json")
     }
 }
 
