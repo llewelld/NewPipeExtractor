@@ -345,19 +345,21 @@ final class Main {
         CommentsInfoResponse response = new CommentsInfoResponse();
         try {
             CommentsInfo result = CommentsInfo.getInfo(serviceId, query.url);
-            final List<Throwable> exceptions = result.getErrors();
-            if (!exceptions.isEmpty()) {
-                System.out.println("Comments exceptions: " + exceptions.size());
-                System.out.println("Comments exception: " + exceptions.get(0));
-                System.out.println("Comments exception stack trace:");
-                exceptions.get(0).printStackTrace();
+            if (result != null) {
+                final List<Throwable> exceptions = result.getErrors();
+                if (!exceptions.isEmpty()) {
+                    System.out.println("Comments exceptions: " + exceptions.size());
+                    System.out.println("Comments exception: " + exceptions.get(0));
+                    System.out.println("Comments exception stack trace:");
+                    exceptions.get(0).printStackTrace();
+                }
+                response = new CommentsInfoResponse(
+                    result.getNextPage(),
+                    result.getContentFilters(),
+                    result.getSortFilter(),
+                    result.getRelatedItems()
+                );
             }
-            response = new CommentsInfoResponse(
-                result.getNextPage(),
-                result.getContentFilters(),
-                result.getSortFilter(),
-                result.getRelatedItems()
-            );
         }
         catch (final IOException e) {
             System.out.println("IOException in getCommentsInfo: " + e);
