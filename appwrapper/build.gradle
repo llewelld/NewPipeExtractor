@@ -48,6 +48,7 @@ graalvmNative {
         //buildArgs.add('--parallelism=2')
         buildArgs.add('-H:DeadlockWatchdogInterval=0')
         buildArgs.add('-H:+UnlockExperimentalVMOptions')
+        buildArgs.add('--native-compiler-options=-mno-outline-atomics')
     }
 }
 
