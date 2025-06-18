@@ -209,6 +209,10 @@ final class Main {
             extracted.category = extractor.getCategory();
             extracted.likeCount = extractor.getLikeCount();
             extracted.viewCount = extractor.getViewCount();
+            extracted.uploadDate = extractor.getUploadDate().offsetDateTime().toEpochSecond();
+            extracted.description = extractor.getDescription();
+            extracted.length = extractor.getLength();
+            extracted.licence = extractor.getLicence();
 
             final java.util.List<VideoStream> videoStreams = extractor.getVideoStreams();
             for (final VideoStream stream : videoStreams) {

@@ -18,7 +18,9 @@ package uk.co.flypig;
  * You should have received a copy of the GNU General Public License
  * along with this code.  If not, see <http://www.gnu.org/licenses/>.
  */
-	
+
+import org.schabi.newpipe.extractor.stream.Description;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import io.micronaut.core.annotation.ReflectiveAccess;
@@ -33,5 +35,9 @@ public final class DownloadExtracted {
     public long likeCount;
     public long viewCount;
     public String content;
+    public long uploadDate;
+    public Description description;
+    public long length;
+    public String licence;
 }
 
