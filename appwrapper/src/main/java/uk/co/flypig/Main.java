@@ -63,16 +63,34 @@ import org.schabi.newpipe.extractor.timeago.patterns.en_GB;
 import org.schabi.newpipe.extractor.MetaInfo;
 import org.schabi.newpipe.extractor.comments.CommentsInfoItem;
 import org.schabi.newpipe.extractor.stream.Description;
+import org.schabi.newpipe.extractor.stream.StreamInfoItem;
+import org.schabi.newpipe.extractor.channel.ChannelInfoItem;
+import org.schabi.newpipe.extractor.playlist.PlaylistInfoItem;
+import org.schabi.newpipe.extractor.localization.DateWrapper;
+import java.time.OffsetDateTime;
+
+// offsetDateTime
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.PropertyName;
+import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 
 @TypeHint(
     value = {
         Page.class,
         InfoItem.class,
+        StreamInfoItem.class,
+        ChannelInfoItem.class,
+        PlaylistInfoItem.class,
         Image.class,
         en_GB.class,
         MetaInfo.class,
         CommentsInfoItem.class,
         Description.class,
+        DateWrapper.class,
+        OffsetDateTime.class
     },
     accessType = {
         TypeHint.AccessType.ALL_PUBLIC_CONSTRUCTORS,
@@ -134,6 +152,24 @@ final class Main {
         // Set up static data
         emptyString = CTypeConversion.toCString("").get();
         jsonMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
+        // Allow DateWrapper.offsetDateTime to be serialised
+        jsonMapper.registerModule(new JavaTimeModule());
+        jsonMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+            @Override
+            public PropertyName findNameForSerialization(Annotated annotated) {
+                PropertyName result = super.findNameForSerialization(annotated);
+                if (result == null) {
+                    final AnnotatedElement classMember = annotated.getAnnotated();
+                    if (classMember instanceof Method) {
+                        if (((Method)classMember).getName() == "offsetDateTime") {
+                            result = new PropertyName("offsetDateTime");
+                        }
+                    }
+                }
+                return result;
+            }
+        });
 
         // Create the HTTP client
         final OkHttpClient.Builder builder = new OkHttpClient.Builder();
