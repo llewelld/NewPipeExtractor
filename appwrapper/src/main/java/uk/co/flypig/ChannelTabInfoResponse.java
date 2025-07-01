@@ -1,7 +1,7 @@
 package uk.co.flypig;
 
 /*
- * Created by David Llewellyn-Jones on 2025-03-23.
+ * Created by David Llewellyn-Jones on 2025-07-01.
  *
  * Copyright (C) 2025 David Llewellyn-Jones <david@flypig.co.uk>
  *
@@ -21,26 +21,21 @@ package uk.co.flypig;
 
 import org.schabi.newpipe.extractor.Page;
 import org.schabi.newpipe.extractor.InfoItem;
-import org.schabi.newpipe.extractor.MetaInfo;
 
-import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.util.List;
 import io.micronaut.core.annotation.ReflectiveAccess;
 
 @ReflectiveAccess
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public final class SearchInfoResponse {
-    public String searchString;
-    public String searchSuggestion;
-    public boolean isCorrectedSearch;
-    public Page nextPage;
-    public List<String> contentFilters;
-    public String sortFilter;
+public final class ChannelTabInfoResponse {
     public List<InfoItem> relatedItems;
-    public List<MetaInfo> metaInfo;
+    Page nextPage;
+    List<String> contentFilters;
+    String sortFilter;
 }
 

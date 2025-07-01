@@ -32,6 +32,8 @@ import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.VideoStream;
 import org.schabi.newpipe.extractor.suggestion.SuggestionExtractor;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
+import org.schabi.newpipe.extractor.channel.ChannelInfo;
+import org.schabi.newpipe.extractor.channel.tabs.ChannelTabInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -67,6 +69,7 @@ import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem;
 import org.schabi.newpipe.extractor.playlist.PlaylistInfoItem;
 import org.schabi.newpipe.extractor.localization.DateWrapper;
+import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler;
 import java.time.OffsetDateTime;
 
 // offsetDateTime
@@ -90,7 +93,8 @@ import java.lang.reflect.AnnotatedElement;
         CommentsInfoItem.class,
         Description.class,
         DateWrapper.class,
-        OffsetDateTime.class
+        OffsetDateTime.class,
+        ListLinkHandler.class
     },
     accessType = {
         TypeHint.AccessType.ALL_PUBLIC_CONSTRUCTORS,
@@ -212,6 +216,12 @@ final class Main {
         );
         methodInfo.put("getMoreCommentItems", new MethodInfo<CommentsInfoQuery,
             InfoItemsPageCommentsResponse>(Main::getMoreCommentItems, CommentsInfoQuery.class)
+        );
+        methodInfo.put("getChannelInfo", new MethodInfo<ChannelInfoQuery,
+            ChannelInfoResponse>(Main::getChannelInfo, ChannelInfoQuery.class)
+        );
+        methodInfo.put("getChannelTabInfo", new MethodInfo<ChannelTabInfoQuery,
+            ChannelTabInfoResponse>(Main::getChannelTabInfo, ChannelTabInfoQuery.class)
         );
     }
 
@@ -431,6 +441,61 @@ final class Main {
         }
         catch (final ExtractionException e) {
             System.out.println("ExtractionException in getMoreCommentItems: " + e);
+        }
+
+        return response;
+    }
+
+    public static ChannelInfoResponse getChannelInfo(ChannelInfoQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
+
+        ChannelInfoResponse response = new ChannelInfoResponse();
+
+        try {
+            ChannelInfo result = ChannelInfo.getInfo(
+                serviceId,
+                query.url
+            );
+            response = new ChannelInfoResponse(
+                result.getId(),
+                result.getName(),
+                result.getUrl(),
+                result.getDescription(),
+                result.getTabs()
+            );
+        }
+        catch (final IOException e) {
+            System.out.println("IOException in getChannelInfo: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in getChannelInfo: " + e);
+        }
+
+        return response;
+    }
+
+    public static ChannelTabInfoResponse getChannelTabInfo(ChannelTabInfoQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
+
+        ChannelTabInfoResponse response = new ChannelTabInfoResponse();
+
+        try {
+            ChannelTabInfo result = ChannelTabInfo.getInfo(
+                serviceId,
+                query.linkHandler
+            );
+            response = new ChannelTabInfoResponse(
+                result.getRelatedItems(),
+                result.getNextPage(),
+                result.getContentFilters(),
+                result.getSortFilter()
+            );
+        }
+        catch (final IOException e) {
+            System.out.println("IOException in getChannelTabInfo: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in getChannelTabInfo: " + e);
         }
 
         return response;
