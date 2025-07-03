@@ -69,6 +69,7 @@ import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem;
 import org.schabi.newpipe.extractor.playlist.PlaylistInfoItem;
 import org.schabi.newpipe.extractor.localization.DateWrapper;
+import org.schabi.newpipe.extractor.linkhandler.LinkHandler;
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler;
 import java.time.OffsetDateTime;
 
@@ -94,6 +95,7 @@ import java.lang.reflect.AnnotatedElement;
         Description.class,
         DateWrapper.class,
         OffsetDateTime.class,
+        LinkHandler.class,
         ListLinkHandler.class
     },
     accessType = {
