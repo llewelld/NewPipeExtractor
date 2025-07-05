@@ -31,6 +31,11 @@ import io.micronaut.core.annotation.ReflectiveAccess;
 @NoArgsConstructor
 public final class ChannelTabInfoQuery {
     public String service;
-    public ListLinkHandler linkHandler;
+    // ListLinkHandler
+    String originalUrl;
+    String url;
+    String id;
+    List<String> contentFilters;
+    String sortFilter;
 }
 

@@ -482,9 +482,10 @@ final class Main {
         ChannelTabInfoResponse response = new ChannelTabInfoResponse();
 
         try {
+            ListLinkHandler linkHandler = new ListLinkHandler(query.originalUrl, query.url, query.id, query.contentFilters, query.sortFilter);
             ChannelTabInfo result = ChannelTabInfo.getInfo(
                 serviceId,
-                query.linkHandler
+                linkHandler
             );
             response = new ChannelTabInfoResponse(
                 result.getRelatedItems(),
