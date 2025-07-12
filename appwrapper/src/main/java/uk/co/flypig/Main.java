@@ -225,6 +225,9 @@ final class Main {
         methodInfo.put("getChannelTabInfo", new MethodInfo<ChannelTabInfoQuery,
             ChannelTabInfoResponse>(Main::getChannelTabInfo, ChannelTabInfoQuery.class)
         );
+        methodInfo.put("getMoreChannelItems", new MethodInfo<ChannelMoreItemsQuery,
+            ChannelMoreItemsResponse>(Main::getMoreChannelItems, ChannelMoreItemsQuery.class)
+        );
     }
 
     @CEntryPoint(name = "invoke")
@@ -499,6 +502,39 @@ final class Main {
         }
         catch (final ExtractionException e) {
             System.out.println("ExtractionException in getChannelTabInfo: " + e);
+        }
+
+        return response;
+    }
+
+    private static ChannelMoreItemsResponse getMoreChannelItems(ChannelMoreItemsQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
+
+        ChannelMoreItemsResponse response = new ChannelMoreItemsResponse();
+        try {
+            ListLinkHandler linkHandler = new ListLinkHandler(query.originalUrl, query.url, query.id, query.contentFilters, query.sortFilter);
+
+            ListExtractor.InfoItemsPage<InfoItem> result = ChannelTabInfo.getMoreItems(serviceId, linkHandler, query.page);
+            if (result != null) {
+                final List<Throwable> exceptions = result.getErrors();
+                if (!exceptions.isEmpty()) {
+                    System.out.println("Channel Tab exceptions: " + exceptions.size());
+                    System.out.println("Channel Tab exception: " + exceptions.get(0));
+                    System.out.println("Channel Tab exception stack trace:");
+                    exceptions.get(0).printStackTrace();
+                }
+
+                response = new ChannelMoreItemsResponse(
+                    result.getItems(),
+                    result.getNextPage()
+                );
+            }
+        }
+        catch (final IOException e) {
+            System.out.println("IOException in getMoreChannelItems: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in getMoreChannelItems: " + e);
         }
 
         return response;
