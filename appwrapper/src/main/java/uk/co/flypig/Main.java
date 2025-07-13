@@ -25,6 +25,7 @@ import org.schabi.newpipe.extractor.ServiceList;
 import org.schabi.newpipe.extractor.ListExtractor;
 import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage;
 import org.schabi.newpipe.extractor.search.SearchInfo;
+import org.schabi.newpipe.extractor.search.SearchExtractor.NothingFoundException;
 import org.schabi.newpipe.extractor.comments.CommentsInfo;
 import org.schabi.newpipe.extractor.comments.CommentsInfoItem;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
@@ -332,10 +333,15 @@ final class Main {
             );
             final List<Throwable> exceptions = result.getErrors();
             if (!exceptions.isEmpty()) {
-                System.out.println("Search exceptions: " + exceptions.size());
-                System.out.println("Search exception: " + exceptions.get(0));
-                System.out.println("Search exception stack trace:");
-                exceptions.get(0).printStackTrace();
+                if ((exceptions.size() == 1) && (exceptions.get(0) instanceof NothingFoundException)) {
+                    System.out.println("No results found");
+                }
+                else {
+                    System.out.println("Search exceptions: " + exceptions.size());
+                    System.out.println("Search exception: " + exceptions.get(0));
+                    System.out.println("Search exception stack trace:");
+                    exceptions.get(0).printStackTrace();
+                }
             }
             response = new SearchInfoResponse(
                 result.getSearchString(),
