@@ -472,6 +472,9 @@ final class Main {
                 result.getName(),
                 result.getUrl(),
                 result.getDescription(),
+                result.getSubscriberCount(),
+                result.isVerified(),
+                result.getTags(),
                 result.getTabs()
             );
         }

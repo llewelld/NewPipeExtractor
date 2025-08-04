@@ -36,6 +36,9 @@ public final class ChannelInfoResponse {
     String name;
     String url;
     String description;
+    long subscriberCount;
+    boolean verified;
+    List<String> tags;
     List<ListLinkHandler> tabs;
 }
 
