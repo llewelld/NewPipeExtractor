@@ -35,6 +35,7 @@ import org.schabi.newpipe.extractor.suggestion.SuggestionExtractor;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.channel.ChannelInfo;
 import org.schabi.newpipe.extractor.channel.tabs.ChannelTabInfo;
+import org.schabi.newpipe.extractor.playlist.PlaylistInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -228,6 +229,12 @@ final class Main {
         );
         methodInfo.put("getMoreChannelItems", new MethodInfo<ChannelMoreItemsQuery,
             ChannelMoreItemsResponse>(Main::getMoreChannelItems, ChannelMoreItemsQuery.class)
+        );
+        methodInfo.put("getPlaylistInfo", new MethodInfo<PlaylistInfoQuery,
+            PlaylistInfoResponse>(Main::getPlaylistInfo, PlaylistInfoQuery.class)
+        );
+        methodInfo.put("getMorePlaylistItems", new MethodInfo<PlaylistInfoQuery,
+            InfoItemsPagePlaylistResponse>(Main::getMorePlaylistItems, PlaylistInfoQuery.class)
         );
     }
 
@@ -544,6 +551,73 @@ final class Main {
         }
         catch (final ExtractionException e) {
             System.out.println("ExtractionException in getMoreChannelItems: " + e);
+        }
+
+        return response;
+    }
+
+    private static PlaylistInfoResponse getPlaylistInfo(PlaylistInfoQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
+
+        PlaylistInfoResponse response = new PlaylistInfoResponse();
+        try {
+            PlaylistInfo result = PlaylistInfo.getInfo(serviceId, query.url);
+            if (result != null) {
+                final List<Throwable> exceptions = result.getErrors();
+                if (!exceptions.isEmpty()) {
+                    System.out.println("Playlist exceptions: " + exceptions.size());
+                    System.out.println("Playlist exception: " + exceptions.get(0));
+                    System.out.println("Playlist exception stack trace:");
+                    exceptions.get(0).printStackTrace();
+                }
+                response = new PlaylistInfoResponse(
+                    result.getOriginalUrl(),
+                    result.getStreamCount(),
+                    result.getDescription(),
+                    result.getThumbnails(),
+                    result.getUploaderUrl(),
+                    result.getUploaderName(),
+                    result.getUploaderAvatars(),
+                    result.getSubChannelUrl(),
+                    result.getSubChannelName(),
+                    result.getSubChannelAvatars(),
+                    result.getBanners(),
+                    result.getPlaylistType(),
+                    result.getNextPage(),
+                    result.getRelatedItems()
+                );
+            }
+        }
+        catch (final IOException e) {
+            System.out.println("IOException in getPlaylistInfo: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in getPlaylistInfo: " + e);
+        }
+
+        return response;
+    }
+
+    private static InfoItemsPagePlaylistResponse getMorePlaylistItems(PlaylistInfoQuery query) {
+        StreamingService serviceId = convertStringToService(query.service);
+
+        InfoItemsPagePlaylistResponse response = new InfoItemsPagePlaylistResponse();
+        try {
+            InfoItemsPage<StreamInfoItem> result = PlaylistInfo.getMoreItems(
+                serviceId,
+                query.url,
+                query.page
+            );
+            response = new InfoItemsPagePlaylistResponse(
+                result.getNextPage(),
+                result.getItems()
+            );
+        }
+        catch (final IOException e) {
+            System.out.println("IOException in getMorePlaylistItems: " + e);
+        }
+        catch (final ExtractionException e) {
+            System.out.println("ExtractionException in getMorePlaylistItems: " + e);
         }
 
         return response;
